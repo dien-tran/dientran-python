@@ -65,7 +65,7 @@ class BookStore:
 
     def list_books(self):
         if not self.books:
-            print("⚠️ Chưa có sách nào trong cửa hàng!")
+            print("Chưa có sách nào trong cửa hàng!")
         else:
             for i, book in enumerate(self.books, start=1):
                 print(f"{i}. {book.display_info()}")
@@ -105,7 +105,7 @@ def menu():
         print("7. Xóa sách theo tên")
         print("0. Thoát")
 
-        choice = input("👉 Chọn chức năng: ")
+        choice = input("Chọn chức năng: ")
 
         if choice == "1":
             title = input("Nhập tên sách: ")
@@ -114,7 +114,7 @@ def menu():
             quantity = int(input("Nhập số lượng: "))
             subject = input("Nhập môn học: ")
             store.add_book(TextBook(title, author, price, quantity, subject))
-            print("✅ Đã thêm sách giáo trình!")
+            print("Đã thêm sách giáo trình!")
 
         elif choice == "2":
             title = input("Nhập tên sách: ")
@@ -123,7 +123,7 @@ def menu():
             quantity = int(input("Nhập số lượng: "))
             genre = input("Nhập thể loại: ")
             store.add_book(Novel(title, author, price, quantity, genre))
-            print("✅ Đã thêm tiểu thuyết!")
+            print("Đã thêm tiểu thuyết!")
 
         elif choice == "3":
             print("\n===== DANH SÁCH SÁCH =====")
@@ -146,21 +146,21 @@ def menu():
                 for book in results:
                     print(book.display_info())
             else:
-                print("⚠️ Không tìm thấy sách nào!")
+                print("Không tìm thấy sách nào!")
 
         elif choice == "7":
             keyword = input("Nhập tên (hoặc từ khóa) sách cần xóa: ")
             removed = store.remove_book(keyword)
             if removed > 0:
-                print(f"✅ Đã xóa {removed} sách có chứa từ khóa '{keyword}'")
+                print(f"Đã xóa {removed} sách có chứa từ khóa '{keyword}'")
             else:
-                print("⚠️ Không tìm thấy sách để xóa!")
+                print("Không tìm thấy sách để xóa!")
 
         elif choice == "0":
-            print("👋 Thoát chương trình. Tạm biệt!")
+            print("Thoát chương trình. Tạm biệt!")
             break
         else:
-            print("⚠️ Lựa chọn không hợp lệ, vui lòng thử lại!")
+            print("Lựa chọn không hợp lệ, vui lòng thử lại!")
 
 
 # ======= Chạy chương trình =======
