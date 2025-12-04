@@ -1,168 +1,145 @@
-from abc import ABC, abstractmethod
+# ============================================
+# CHƯƠNG TRÌNH QUẢN LÝ SINH VIÊN - OOP PYTHON
+# Có: Trừu tượng, Kế thừa, Đa hình, Đóng gói
+# CRUD: Thêm – Sửa – Xóa – Tìm kiếm
+# Menu chạy trong 1 cell duy nhất
+# ============================================
 
-# ======= Lớp cha (Book) =======
-class Book(ABC):
-    def __init__(self, title, author, price, quantity):
-        self.__title = title
-        self.__author = author
-        self.__price = price
-        self.__quantity = quantity
+from abc import ABC, abstractmethod   # Dùng để tạo lớp trừu tượng
 
-    # Getter & Setter
-    def get_title(self):
-        return self.__title
-
-    def get_author(self):
-        return self.__author
-
-    def get_price(self):
-        return self.__price
-
-    def set_price(self, new_price):
-        self.__price = new_price
-
-    def get_quantity(self):
-        return self.__quantity
-
-    def set_quantity(self, new_quantity):
-        self.__quantity = new_quantity
-
-    def total_value(self):
-        return self.__price * self.__quantity
+# -----------------------------
+# LỚP TRỪU TƯỢNG PERSON
+# -----------------------------
+class Person(ABC):  # ABC = Abstract Base Class
+    def __init__(self, student_id, name, age):
+        self.student_id = student_id  # Thuộc tính chung
+        self.name = name
+        self.age = age
 
     @abstractmethod
-    def display_info(self):
+    def show_info(self):
+        """Phương thức trừu tượng → subclass phải override"""
         pass
 
 
-# ======= Lớp con (TextBook) =======
-class TextBook(Book):
-    def __init__(self, title, author, price, quantity, subject):
-        super().__init__(title, author, price, quantity)
-        self.__subject = subject
+# -----------------------------
+# LỚP STUDENT KẾ THỪA PERSON
+# -----------------------------
+class Student(Person):
+    def __init__(self, student_id, name, age, gpa):
+        super().__init__(student_id, name, age)  # Gọi constructor của Person
+        self.gpa = gpa  # Thuộc tính riêng của Student
 
-    def display_info(self):
-        return f"[TextBook] {self.get_title()} - {self.get_author()} | Subject: {self.__subject} | Giá: {self.get_price()} | SL: {self.get_quantity()}"
-
-
-# ======= Lớp con (Novel) =======
-class Novel(Book):
-    def __init__(self, title, author, price, quantity, genre):
-        super().__init__(title, author, price, quantity)
-        self.__genre = genre
-
-    def display_info(self):
-        return f"[Novel] {self.get_title()} - {self.get_author()} | Thể loại: {self.__genre} | Giá: {self.get_price()} | SL: {self.get_quantity()}"
+    # Ghi đè (đa hình) phương thức trừu tượng
+    def show_info(self):
+        print(f"ID: {self.student_id} | Tên: {self.name} | Tuổi: {self.age} | GPA: {self.gpa}")
 
 
-# ======= Lớp quản lý BookStore =======
-class BookStore:
+# -----------------------------
+# LỚP QUẢN LÝ DANH SÁCH SINH VIÊN
+# -----------------------------
+class StudentManager:
     def __init__(self):
-        self.books = []
+        self.students = []  # Danh sách lưu trữ sinh viên
 
-    def add_book(self, book: Book):
-        self.books.append(book)
+    # Thêm sinh viên
+    def add_student(self):
+        print("\n--- Thêm sinh viên ---")
+        sid = input("Nhập ID: ")
+        name = input("Nhập tên: ")
+        age = int(input("Nhập tuổi: "))
+        gpa = float(input("Nhập GPA: "))
+        self.students.append(Student(sid, name, age, gpa))
+        print("Thêm thành công!")
 
-    def list_books(self):
-        if not self.books:
-            print("Chưa có sách nào trong cửa hàng!")
+    # Hiển thị toàn bộ sinh viên
+    def show_all(self):
+        print("\n--- Danh sách sinh viên ---")
+        if not self.students:
+            print("Danh sách rỗng!")
+            return
+        for s in self.students:
+            s.show_info()
+
+    # Tìm sinh viên theo ID
+    def find_by_id(self, sid):
+        for s in self.students:
+            if s.student_id == sid:
+                return s
+        return None
+
+    # Sửa sinh viên
+    def update_student(self):
+        print("\n--- Sửa thông tin sinh viên ---")
+        sid = input("Nhập ID cần sửa: ")
+
+        student = self.find_by_id(sid)
+        if student is None:
+            print("Không tìm thấy sinh viên!")
+            return
+
+        student.name = input("Tên mới: ")
+        student.age = int(input("Tuổi mới: "))
+        student.gpa = float(input("GPA mới: "))
+        print("Sửa thành công!")
+
+    # Xóa sinh viên
+    def delete_student(self):
+        print("\n--- Xóa sinh viên ---")
+        sid = input("Nhập ID cần xóa: ")
+
+        student = self.find_by_id(sid)
+        if student is None:
+            print("Không tìm thấy sinh viên!")
+            return
+
+        self.students.remove(student)
+        print("Xóa thành công!")
+
+    # Tìm kiếm hiển thị
+    def search_student(self):
+        print("\n--- Tìm kiếm sinh viên ---")
+        sid = input("Nhập ID: ")
+
+        student = self.find_by_id(sid)
+        if student:
+            student.show_info()
         else:
-            for i, book in enumerate(self.books, start=1):
-                print(f"{i}. {book.display_info()}")
-
-    def total_inventory_value(self):
-        return sum(book.total_value() for book in self.books)
-
-    def statistic_by_type(self):
-        stats = {}
-        for book in self.books:
-            key = type(book).__name__
-            stats[key] = stats.get(key, 0) + book.get_quantity()
-        return stats
-
-    def find_book(self, title):
-        results = [book for book in self.books if title.lower() in book.get_title().lower()]
-        return results
-
-    def remove_book(self, title):
-        before = len(self.books)
-        self.books = [book for book in self.books if title.lower() not in book.get_title().lower()]
-        return before - len(self.books)  # số lượng sách đã xóa
+            print("Không tìm thấy sinh viên!")
 
 
-# ======= Menu CLI =======
-def menu():
-    store = BookStore()
+# -----------------------------
+# MENU CHÍNH
+# -----------------------------
+def main():
+    manager = StudentManager()
 
     while True:
-        print("\n===== MENU QUẢN LÝ BÁN SÁCH =====")
-        print("1. Thêm sách giáo trình (TextBook)")
-        print("2. Thêm tiểu thuyết (Novel)")
-        print("3. Xem danh sách sách")
-        print("4. Tính tổng giá trị tồn kho")
-        print("5. Thống kê số lượng theo loại sách")
-        print("6. Tìm sách theo tên")
-        print("7. Xóa sách theo tên")
+        print("\n===== MENU QUẢN LÝ SINH VIÊN =====")
+        print("1. Thêm sinh viên")
+        print("2. Hiển thị danh sách")
+        print("3. Sửa thông tin sinh viên")
+        print("4. Xóa sinh viên")
+        print("5. Tìm sinh viên theo ID")
         print("0. Thoát")
-
         choice = input("Chọn chức năng: ")
 
         if choice == "1":
-            title = input("Nhập tên sách: ")
-            author = input("Nhập tác giả: ")
-            price = int(input("Nhập giá: "))
-            quantity = int(input("Nhập số lượng: "))
-            subject = input("Nhập môn học: ")
-            store.add_book(TextBook(title, author, price, quantity, subject))
-            print("Đã thêm sách giáo trình!")
-
+            manager.add_student()
         elif choice == "2":
-            title = input("Nhập tên sách: ")
-            author = input("Nhập tác giả: ")
-            price = int(input("Nhập giá: "))
-            quantity = int(input("Nhập số lượng: "))
-            genre = input("Nhập thể loại: ")
-            store.add_book(Novel(title, author, price, quantity, genre))
-            print("Đã thêm tiểu thuyết!")
-
+            manager.show_all()
         elif choice == "3":
-            print("\n===== DANH SÁCH SÁCH =====")
-            store.list_books()
-
+            manager.update_student()
         elif choice == "4":
-            print(f"Tổng giá trị tồn kho: {store.total_inventory_value()} VND")
-
+            manager.delete_student()
         elif choice == "5":
-            stats = store.statistic_by_type()
-            print("\n===== THỐNG KÊ THEO LOẠI =====")
-            for k, v in stats.items():
-                print(f"{k}: {v} quyển")
-
-        elif choice == "6":
-            keyword = input("Nhập tên (hoặc từ khóa) cần tìm: ")
-            results = store.find_book(keyword)
-            if results:
-                print("\n===== KẾT QUẢ TÌM KIẾM =====")
-                for book in results:
-                    print(book.display_info())
-            else:
-                print("Không tìm thấy sách nào!")
-
-        elif choice == "7":
-            keyword = input("Nhập tên (hoặc từ khóa) sách cần xóa: ")
-            removed = store.remove_book(keyword)
-            if removed > 0:
-                print(f"Đã xóa {removed} sách có chứa từ khóa '{keyword}'")
-            else:
-                print("Không tìm thấy sách để xóa!")
-
+            manager.search_student()
         elif choice == "0":
-            print("Thoát chương trình. Tạm biệt!")
+            print("Thoát chương trình...")
             break
         else:
-            print("Lựa chọn không hợp lệ, vui lòng thử lại!")
+            print("Lựa chọn không hợp lệ!")
 
 
-# ======= Chạy chương trình =======
-if __name__ == "__main__":
-    menu()
+# Chạy chương trình
+main()
